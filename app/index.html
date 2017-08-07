@@ -1,9 +1,15 @@
 <html>
     <head>
     </head>
-    <body ng-app='app'>
-        <h1> Angular Test</h1>
+    <body ng-app='app' ng-controller="controller">
+         <div id="divSPChrome"></div>
+        <ls-people-picker></ls-people-picker>
         <ls-people-picker></ls-people-picker>
         <script src="bundle.js"></script>
+        <script>
+        function chromeLoaded() {
+            $('body').show();
+        }
+        </script>
     </body>
 </html>
