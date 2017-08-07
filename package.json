@@ -1,0 +1,28 @@
+{
+  "name": "sp-peoplepicker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node node_modules/.bin/webpack-dev-server --content-base app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JamilOmar/sp-peoplepicker.git"
+  },
+  "author": "Jamil Falconi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JamilOmar/sp-peoplepicker/issues"
+  },
+  "homepage": "https://github.com/JamilOmar/sp-peoplepicker#readme",
+  "devDependencies": {
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1"
+  },
+  "dependencies": {
+    "angular": "^1.6.5",
+    "lodash": "^4.17.4"
+  }
+}
