@@ -8,8 +8,14 @@ module.exports =function(ngModule)
             controllerAs : 'vm',
             controller:function()
             {
+                function onInit()
+                {
+
+                    alert('Hola');
+                }
                 var vm =this;
                 vm.greetings = 'Hello';
+                onInit();
             }
         }
     })
