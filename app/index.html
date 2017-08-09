@@ -4,11 +4,11 @@
 </head>
 
 <body ng-app='app' ng-controller="controller">
-    <div id="divSPChrome"></div>
-    <ls-people-picker data-ng-model="$scope.taskAssignees"></ls-people-picker>
-    <span>{{$scope.taskAssignees}}</span>
-    <ls-people-picker data-ng-model="$scope.taskAssignees2"></ls-people-picker>
-    <span>{{$scope.taskAssignees2}}</span>
+    <div id="divSPChrome" style="visibility:collapse;"></div>
+    <ls-people-picker data-ng-model="taskAssignees"></ls-people-picker>
+    <span>{{taskAssignees}}</span>
+    <ls-people-picker data-ng-model="taskAssignees2" pp-is-multiuser='false'></ls-people-picker>
+    <span>{{taskAssignees2}}</span>
     <script src="bundle.js"></script>
     <script>
         function chromeLoaded() {

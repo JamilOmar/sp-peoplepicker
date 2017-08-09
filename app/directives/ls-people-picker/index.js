@@ -1,20 +1,22 @@
 var _ = require('lodash');
+require('../../references/MicrosoftAjax.js');
+require('../../references/peoplepickercontrol_resources.en.js');
+var ngCoreConfig = {};
 module.exports = function (ngModule) {
     ngModule.directive('lsPeoplePicker', function ($q, $timeout, $compile) {
         require('./styles.css');
         return {
             restrict: 'EA',
             scope: {
-                minEntries: '@',
-                maxEntries: '@',
-                allowDuplicates: '@',
-                showLogin: '=',
-                showTitle: '=',
-                minCharacters: '@',
-                selections: '=',
-                ppIsMultiuser: '@',
-                ppAccountType: '@',
-                ppWidth: '@'
+                ppAllowDuplicates: '=',
+                ppShowLogin: '=',
+                ppShowTitle: '=',
+                ppMinCharacters: '=',
+                ppIsMultiuser: '=',
+                ppAccountType: '=',
+                ppWidth: '=',
+                ppMaxEntriesShown: '=',
+                ppPlaceHolder :'@'
             },
             priority: 10,
             require: 'ngModel',
@@ -22,25 +24,38 @@ module.exports = function (ngModule) {
             templateUrl: 'directives/ls-people-picker/template.html',
             link: function (scope, element, attrs, ngModel) {
                 init();
+
                 function init() {
-                    var SPAppWebUrl = _.get(ngCoreConfig, 'sp-shell.SPAppWebUrl');
+                    var SPAppWebUrl = _.get(ngCoreConfig, 'sp-shell.SPAppWebUrl') || decodeURIComponent(getQueryStringParameter('SPAppWebUrl'));
                     if (SPAppWebUrl === undefined) {
                         SPAppWebUrl = window.location.origin;
                         createPeoplePicker(SPAppWebUrl);
-                    }
-                    else {
-                        var SPHostUrl = _.get(ngCoreConfig, 'sp-shell.SPHostUrl');
-                        var SPLanguage = _.get(ngCoreConfig, 'sp-shell.SPLanguage');
+                    } else {
+                        var SPHostUrl = _.get(ngCoreConfig, 'sp-shell.SPHostUrl') || decodeURIComponent(getQueryStringParameter('SPHostUrl'));
+                        var SPLanguage = _.get(ngCoreConfig, 'sp-shell.SPLanguage') || decodeURIComponent(getQueryStringParameter('SPLanguage'));
 
                         createOutsideContext(SPHostUrl, SPAppWebUrl, SPLanguage);
                     }
 
                 }
+
+                function updateView() {
+                    ngModel.$setViewValue(userModel);
+                    if (!scope.$root.$$phase) {
+                        scope.$apply();
+                    }
+                };
+
+                function getViewValue() {
+
+                    return ngModel.$modelValue;
+                };
+
                 function createOutsideContext(spHostUrl, appWebUrl, spLanguage) {
                     //Get the URI decoded SharePoint site url from the SPHostUrl parameter.
-                    scope.spHostUrl = spHostUrl || decodeURIComponent(getQueryStringParameter('SPHostUrl'));
-                    scope.appWebUrl = appWebUrl || decodeURIComponent(getQueryStringParameter('SPAppWebUrl'));
-                    scope.spLanguage = spLanguage || decodeURIComponent(getQueryStringParameter('SPLanguage'));
+                    scope.spHostUrl = spHostUrl;
+                    scope.appWebUrl = appWebUrl;
+                    scope.spLanguage = spLanguage;
                     //Build absolute path to the layouts root with the spHostUrl
                     var layoutsRoot = scope.spHostUrl + '/_layouts/15/';
                     //load all appropriate scripts for the page to function
@@ -57,6 +72,7 @@ module.exports = function (ngModule) {
                                 });
                         });
                 }
+
                 function createPeoplePicker(url) {
 
                     scope.context = new SP.ClientContext(url);
@@ -71,17 +87,14 @@ module.exports = function (ngModule) {
                     scope.peoplePicker = new CAMControl.PeoplePicker(scope.context, $('#spanPeoplePick', element), $('#inputPeoplePick', element), $('#divPeoplePickSearch', element), $('#hdnPeoplePick', element));
                     // required to pass the variable name here!
                     scope.peoplePicker.InstanceName = "peoplePicker";
-                    // Pass current language, if not set defaults to en-US. Use the SPLanguage query string param or provide a string like "nl-BE"
-                    // Do not set the Language property if you do not have foreseen javascript resource file for your language
-                    scope.peoplePicker.Language = scope.spLanguage;
                     // optionally show more/less entries in the people picker dropdown, 4 is the default
-                    scope.peoplePicker.MaxEntriesShown = 5;
+                    scope.peoplePicker.MaxEntriesShown = (scope.ppMaxEntriesShown) ? scope.ppMaxEntriesShown : 4;
                     // Can duplicate entries be selected (default = false)
-                    scope.peoplePicker.AllowDuplicates = false;
+                    scope.peoplePicker.AllowDuplicates = (scope.ppAllowDuplicates) ? scope.ppAllowDuplicates : false;
                     // Show the user loginname
-                    scope.peoplePicker.ShowLoginName = true;
+                    scope.peoplePicker.ShowLoginName = (scope.ppShowLoginName) ? scope.ppShowLoginName : true;
                     // Show the user title
-                    scope.peoplePicker.ShowTitle = true;
+                    scope.peoplePicker.ShowTitle = (scope.ppShowTitle) ? scope.ppShowTitle : true;
                     scope.peoplePicker.onSelectionChanged = function () {
                         var result = JSON.parse($('#hdnPeoplePick', element).val());
                         ngModel.$setViewValue(result);
@@ -91,14 +104,45 @@ module.exports = function (ngModule) {
                     // Set principal type to determine what is shown (default = 1, only users are resolved). 
                     // See http://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.utilities.principaltype.aspx for more details
                     // Set ShowLoginName and ShowTitle to false if you're resolving groups
-                    scope.peoplePicker.PrincipalType = 1;
+                    scope.peoplePicker.PrincipalType = setPrincipalType((scope.ppAccountType && scope.ppAccountType.match(/^(?:user)|(?:dl)|(?:secgroup)|(?:spgroup)$/i)) ? scope.ppAccountType : 'User,DL,SecGroup,SPGroup'); //
                     // start user resolving as of 2 entered characters (= default)
-                    scope.peoplePicker.MinimalCharactersBeforeSearching = 2;
+                    scope.peoplePicker.MinimalCharactersBeforeSearching = (scope.ppMinCharacters) ? scope.ppMinCharacters : 3;
+                    scope.peoplePicker.IsMultiuser = (scope.ppIsMultiuser) ? scope.ppIsMultiuser : true;
+                    scope.ppPlaceHolder = (scope.ppPlaceHolder)?(scope.ppPlaceHolder):'Enter names or email addresses...';
                     scope.peoplePicker.$scope = scope;
                     scope.peoplePicker.$compile = $compile;
                     // Hookup everything
                     scope.peoplePicker.Initialize();
+                    //get pre model values for load data
+                    var users = getViewValue();
+                    if (users)
+                        scope.peoplePicker.Populate(users);
 
+                }
+
+                //Method for set the people picker principal
+                function setPrincipalType(type) {
+                    type = type.toLowerCase();
+                    var pt = 0;
+                    switch (type) {
+                        case 'user':
+                            pt = 1;
+                            break;
+                        case 'dl':
+                            pt = 2;
+                            break;
+                        case 'secgroup':
+                            pt = 4;
+                            break;
+                        case 'spgroup':
+                            pt = 8;
+                            break;
+
+                        default:
+                            pt = 15;
+                            break;
+                    }
+                    return pt;
                 }
 
 
@@ -123,7 +167,9 @@ module.exports = function (ngModule) {
                             return singleParam[1];
                     }
                 }
-
+                //Modified class from 
+                //https://github.com/SharePoint/PnP/tree/master/Components/Core.PeoplePicker
+                //https://github.com/jasonvenema/sharepoint-angular-peoplepicker
                 var CAMControl;
                 (function (CAMControl) {
                     var PeoplePicker = (function () {
@@ -148,7 +194,7 @@ module.exports = function (ngModule) {
                             this.PrincipalType = 1;
                             this.AllowDuplicates = false;
                             this.Language = "en-us";
-
+                            this.IsMultiuser = true;
                             //Private variable is not really private, just a naming convention
                             this._queryID = 1;
                             this._lastQueryID = 1;
@@ -177,6 +223,11 @@ module.exports = function (ngModule) {
 
                             this.PrincipalType = principalType;
                         };
+
+                        //Property wrapped in function to allow access from event handler
+                        PeoplePicker.prototype.IsMultiuser = function () {
+                            return this.IsMultiuser;
+                        }
 
                         // Property wrapped in function to allow access from event handler
                         PeoplePicker.prototype.GetMinimalCharactersBeforeSearching = function () {
@@ -225,9 +276,9 @@ module.exports = function (ngModule) {
                                 if (ignoreCase) {
                                     _token = token.toLowerCase();
                                     while ((
-                                        i = str.toLowerCase().indexOf(
-                                            token, i >= 0 ? i + newToken.length : 0
-                                        )) !== -1) {
+                                            i = str.toLowerCase().indexOf(
+                                                token, i >= 0 ? i + newToken.length : 0
+                                            )) !== -1) {
                                         str = str.substring(0, i) +
                                             newToken +
                                             str.substring(i + token.length);
@@ -248,8 +299,8 @@ module.exports = function (ngModule) {
                             var done = false;
                             script.onload = script.onreadystatechange = function () {
                                 if (!done && (!this.readyState ||
-                                    this.readyState === "loaded" ||
-                                    this.readyState === "complete")) {
+                                        this.readyState === "loaded" ||
+                                        this.readyState === "complete")) {
                                     done = true;
 
                                     // Continue your code
@@ -309,21 +360,13 @@ module.exports = function (ngModule) {
                             }
                             return this.$compile(userHtml)(this.$scope);
                         };
-
-                        // Returns a resolved user object
-                        PeoplePicker.prototype.ResolvedUser = function (login, name, email) {
-                            var user = {};
-                            user.Login = login;
-                            user.Name = name;
-                            user.Email = email;
-                            return user;
-                        };
-
                         // Add resolved user to array and updates the hidden field control with a JSON string
                         PeoplePicker.prototype.PushResolvedUser = function (resolvedUser) {
 
                             if (this.AllowDuplicates) {
                                 this._ResolvedUsers.push(resolvedUser);
+                            } else if ((!this.IsMultiuser) && (this._ResolvedUsers.length > 1)) {
+                                alert("Cannot Add another user the maximum number has been reached!  Remove a user before adding another!");
                             } else {
                                 var duplicate = false;
                                 for (var i = 0; i < this._ResolvedUsers.length; i++) {
@@ -362,15 +405,25 @@ module.exports = function (ngModule) {
 
                         // Update the people picker control to show the newly added user
                         PeoplePicker.prototype.RecipientSelected = function (login, name, email) {
-                            this.HideSelectionBox();
-                            // Push new resolved user to list
-                            this.PushResolvedUser(this.ResolvedUser(login, name, email));
-                            // Update the resolved user display
-                            this.PeoplePickerControl.html(this.ResolvedUsersToHtml());
-                            // Prepare the edit control for a second user selection
-                            this.PeoplePickerEdit.val('');
-                            this.PeoplePickerEdit.focus();
-                            this.onSelectionChanged();
+                            var self = this;
+                            self.data = self.$scope.context.get_web().ensureUser(login);
+                            self.$scope.context.load(self.data);
+                            self.$scope.context.executeQueryAsync(function () {
+                                self.HideSelectionBox();
+                                // Push new resolved user to list
+                                var user = {};
+                                user.Id = self.data.get_id();
+                                user.Title = user.Login = login;
+                                user.Name = name;
+                                user.Email = email;
+                                self.PushResolvedUser(user);
+                                // Update the resolved user display
+                                self.PeoplePickerControl.html(self.ResolvedUsersToHtml());
+                                // Prepare the edit control for a second user selection
+                                self.PeoplePickerEdit.val('');
+                                self.PeoplePickerEdit.focus();
+                                self.onSelectionChanged();
+                            });
                         };
 
                         // Delete a resolved user
@@ -453,19 +506,31 @@ module.exports = function (ngModule) {
                                     this.PeoplePickerDisplay.html(this.$compile(txtResults)(this.$scope));
                                     //display the suggestion box
                                     this.ShowSelectionBox();
-                                }
-                                else {
+                                } else {
                                     var searchbusy = '<div class=\'ms-emphasisBorder\' style=\'width: 400px; padding: 4px; border-left: none; border-bottom: none; border-right: none; cursor: default;\'>No results found</div>';
                                     this.PeoplePickerDisplay.html(this.$compile(searchbusy)(this.$scope));
                                     //display the suggestion box
                                     this.ShowSelectionBox();
                                 }
-                            }
-                            else {
+                            } else {
                                 //hide the suggestion box since results are null
                                 this.HideSelectionBox();
                             }
                         };
+                        PeoplePicker.prototype.Populate = function (users) {
+                            var self = this;
+                            if (users) {
+                                _.each(users, function (singleUser) {
+                                    self.PushResolvedUser(singleUser);
+                                    // Update the resolved user display
+                                    self.PeoplePickerControl.html(self.ResolvedUsersToHtml());
+                                    // Prepare the edit control for a second user selection
+                                    self.PeoplePickerEdit.val('');
+                                    self.PeoplePickerEdit.focus();
+                                    self.onSelectionChanged();
+                                });
+                            }
+                        }
 
                         // Initialize
                         PeoplePicker.prototype.Initialize = function () {
@@ -479,17 +544,6 @@ module.exports = function (ngModule) {
                                     scriptUrl = scriptUrl.substring(0, scriptUrl.indexOf('.js'));
                                 }
                             });
-
-                            // Load translation files
-                            var resourcesFile = scriptUrl + "_resources." + this.Language.substring(0, 2).toLowerCase() + ".js";
-                            if (scriptRevision.length > 0) {
-                                resourcesFile += scriptRevision;
-                            }
-
-                            this.LoadScript(resourcesFile, function () {
-                            });
-
-
                             // is there data in the hidden control...if so show it
                             if (this.PeoplePickerData.val().length > 0) {
                                 // Deserialize JSON string into list of resolved users
@@ -517,8 +571,7 @@ module.exports = function (ngModule) {
                                     var unvalidatedText = parent.PeoplePickerEdit.val();
                                     if (unvalidatedText.length > 0) {
                                         // delete the last entered character...meaning do nothing as this delete will happen as part of the keypress
-                                    }
-                                    else {
+                                    } else {
                                         // are there resolved users, if not there's nothing to delete
                                         if (parent._ResolvedUsers.length > 0) {
                                             // remove the last added user
@@ -579,8 +632,12 @@ module.exports = function (ngModule) {
                                             parent._lastQueryID = queryIDToPass;
 
                                             // make the SharePoint request
-                                            parent.SharePointContext.executeQueryAsync(Function.createDelegate(this, function () { parent.QuerySuccess(queryIDToPass, searchResult); }),
-                                                Function.createDelegate(this, function () { parent.QueryFailure(queryIDToPass); }));
+                                            parent.SharePointContext.executeQueryAsync(Function.createDelegate(this, function () {
+                                                    parent.QuerySuccess(queryIDToPass, searchResult);
+                                                }),
+                                                Function.createDelegate(this, function () {
+                                                    parent.QueryFailure(queryIDToPass);
+                                                }));
                                         }
                                     }
                                 }
