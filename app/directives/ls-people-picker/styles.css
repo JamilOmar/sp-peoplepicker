@@ -1,11 +1,9 @@
 
 .cam-peoplepicker-userlookup {
-     border:1px solid #ababab;
-    background-color:transparent;
-    color:#444;
-    border-color:rgba(0,0,0,0.12);
-    border-width:0 0 1px 0;
-
+    height: 50px; 
+    overflow: hidden; 
+    border: 1px solid #99b0c1; 
+    padding: 2px 5px 2px 5px;
 }
 
 .cam-peoplepicker-usersearch {
