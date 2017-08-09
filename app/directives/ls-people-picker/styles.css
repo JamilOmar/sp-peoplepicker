@@ -1,9 +1,9 @@
-
 .cam-peoplepicker-userlookup {
-    height: 50px; 
-    overflow: hidden; 
-    border: 1px solid #99b0c1; 
-    padding: 2px 5px 2px 5px;
+    border: 1px solid #ababab;
+    background-color: transparent;
+    color: #444;
+    border-color: rgba(0, 0, 0, 0.12);
+    border-width: 0 0 1px 0;
 }
 
 .cam-peoplepicker-usersearch {
@@ -12,10 +12,15 @@
     display: none;
     cursor: pointer;
     background-color: #fff;
+    border-color:  #c6c6c6;
+}
+.cam-peoplepicker-usersearch:hover
+{
+      border-color:  #c6c6c6;
 }
 
 .cam-peoplepicker-userSpan {
-	border-collapse: collapse;
+    border-collapse: collapse;
     cursor: pointer;
     display: inline-block;
     margin-bottom: 1px;
@@ -26,39 +31,41 @@
 }
 
 .cam-entity-resolved {
-	border-collapse: collapse;
+    border-collapse: collapse;
     cursor: pointer;
     display: inline-block;
     max-width: 400px;
-    overflow:hidden;
+    overflow: hidden;
     text-decoration: underline;
-    vertical-align:bottom;
-    white-space:nowrap;
+    vertical-align: bottom;
+    white-space: nowrap;
 }
 
 .cam-peoplepicker-delImage {
-	border-collapse: collapse;
+    border-collapse: collapse;
     cursor: pointer;
-	margin-left: 3px;
-    text-decoration:none;
-    white-space:nowrap;
+    margin-left: 3px;
+    color: #337ab7 !important;
 }
 
 .cam-peoplepicker-delImage:hover {
-	text-decoration: none;
+    text-decoration: none;
 }
 
 .cam-peoplepicker-edit {
-    border-style: none !important; 
+    border-style: none !important;
     border-color: currentColor !important;
     border-width: 0px !important;
-    max-width: 435px; 
-    outline-color: invert !important; 
-    outline-style: none !important; 
+    max-width: 435px;
+    outline-color: invert !important;
+    outline-style: none !important;
     outline-width: 0px !important;
 }
 
-.cam-peoplepicker-usersearch .ms-bgHoverable .selected {
-    background: beige;
-    border: 1px dotted black;
+.cam-peoplepicker-usersearch .ms-bgHoverable:hover {
+    background-color: rgba(203, 237, 203, 0.50);
+}
+
+.cam-peoplepicker-usersearch .ms-emphasisBorder {
+    border: 2px dashed darkslategray;
 }

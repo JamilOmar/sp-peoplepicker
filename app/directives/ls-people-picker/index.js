@@ -1,3 +1,4 @@
+'use strict';
 var _ = require('lodash');
 require('../../references/MicrosoftAjax.js');
 require('../../references/peoplepickercontrol_resources.en.js');
@@ -14,9 +15,9 @@ module.exports = function (ngModule) {
                 ppMinCharacters: '=',
                 ppIsMultiuser: '=',
                 ppAccountType: '=',
-                ppWidth: '=',
+                ppWidth: '@',
                 ppMaxEntriesShown: '=',
-                ppPlaceHolder :'@'
+                ppPlaceHolder: '@'
             },
             priority: 10,
             require: 'ngModel',
@@ -92,14 +93,19 @@ module.exports = function (ngModule) {
                     // Can duplicate entries be selected (default = false)
                     scope.peoplePicker.AllowDuplicates = (scope.ppAllowDuplicates) ? scope.ppAllowDuplicates : false;
                     // Show the user loginname
-                    scope.peoplePicker.ShowLoginName = (scope.ppShowLoginName) ? scope.ppShowLoginName : true;
+                    scope.peoplePicker.ShowLoginName = (scope.ppShowLoginName) ? scope.ppShowLoginName : false;
                     // Show the user title
                     scope.peoplePicker.ShowTitle = (scope.ppShowTitle) ? scope.ppShowTitle : true;
                     scope.peoplePicker.onSelectionChanged = function () {
                         var result = JSON.parse($('#hdnPeoplePick', element).val());
                         ngModel.$setViewValue(result);
+                        //will hide or show the place holder
+                        if (_.isEmpty(result)) {
+                            $('#inputPeoplePick', element).attr('placeholder', scope.ppPlaceHolder);
+                        } else {
+                            $('#inputPeoplePick', element).attr('placeholder', '');
+                        }
                         ngModel.$render();
-
                     };
                     // Set principal type to determine what is shown (default = 1, only users are resolved). 
                     // See http://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.utilities.principaltype.aspx for more details
@@ -108,7 +114,8 @@ module.exports = function (ngModule) {
                     // start user resolving as of 2 entered characters (= default)
                     scope.peoplePicker.MinimalCharactersBeforeSearching = (scope.ppMinCharacters) ? scope.ppMinCharacters : 3;
                     scope.peoplePicker.IsMultiuser = (scope.ppIsMultiuser) ? scope.ppIsMultiuser : true;
-                    scope.ppPlaceHolder = (scope.ppPlaceHolder)?(scope.ppPlaceHolder):'Enter names or email addresses...';
+                    scope.ppPlaceHolder = (scope.ppPlaceHolder) ? (scope.ppPlaceHolder) : 'Enter names or email addresses...';
+                    scope.ppWidth = (scope.ppWidth && scope.ppWidth.match(/^[0-9][0-9]*px$/i)) ? scope.ppWidth : '220px';
                     scope.peoplePicker.$scope = scope;
                     scope.peoplePicker.$compile = $compile;
                     // Hookup everything
@@ -345,7 +352,7 @@ module.exports = function (ngModule) {
 
                             resultDisplay = this.Format(resultDisplay, name);
 
-                            userDisplaySpanTemplate = '<span class="cam-peoplepicker-userSpan"><span class="cam-entity-resolved">{0}</span><a title="{3}" class="cam-peoplepicker-delImage" ng-click="{1}.DeleteProcessedUser({2})" href>x</a></span>';
+                            var userDisplaySpanTemplate = '<span class="cam-peoplepicker-userSpan"><span class="cam-entity-resolved">{0}</span><a title="{3}" class="cam-peoplepicker-delImage" ng-click="{1}.DeleteProcessedUser({2})" href>x</a></span>';
                             return this.Format(userDisplaySpanTemplate, name, this.InstanceName, "'" + lookupValue + "'", resultDisplay);
                         };
 
@@ -609,7 +616,7 @@ module.exports = function (ngModule) {
 
                                         // only perform a query when we at least have two chars and we do not have a query running already
                                         if (searchText.length >= parent.GetMinimalCharactersBeforeSearching()) {
-                                            resultDisplay = 'Searching...';
+                                            var resultDisplay = 'Searching...';
                                             if (typeof resultsSearching != 'undefined') {
                                                 resultDisplay = resultsSearching;
                                             }

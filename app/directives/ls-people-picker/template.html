@@ -1,10 +1,10 @@
 
             <div class="cam-peoplepicker-input">
                 <div id="divPeoplePick" class="cam-peoplepicker-userlookup ms-fullWidth">
-                    <span id="spanPeoplePick"></span>
-                    <input type="text" id="inputPeoplePick" placeholder="{{ppPlaceHolder}}" class="cam-peoplepicker-edit" Width="70"  ng-readonly="{{ppIsReadOnly}}" />
+                    <span id="spanPeoplePick" class="cam-peoplepicker-userSpan"></span>
+                    <input type="text" id="inputPeoplePick" placeholder="{{ppPlaceHolder}}" class="cam-peoplepicker-edit" ng-style="{width: ppWidth}"  ng-readonly="{{ppIsReadOnly}}" />
                 </div>
-                <div id="divPeoplePickSearch" class="cam-peoplepicker-usersearch ms-emphasisBorder"></div>
+                <div id="divPeoplePickSearch"  class="cam-peoplepicker-usersearch ms-emphasisBorder"></div>
                 <input type="hidden" id="hdnPeoplePick" name="hdnPeoplePick" />
             </div>
         </div>
