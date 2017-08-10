@@ -1,4 +1,4 @@
-.cam-peoplepicker-userlookup {
+.lsPeople .cam-peoplepicker-userlookup {
     border: 1px solid #ababab;
     background-color: transparent;
     color: #444;
@@ -6,7 +6,7 @@
     border-width: 0 0 1px 0;
 }
 
-.cam-peoplepicker-usersearch {
+.lsPeople .cam-peoplepicker-usersearch {
     position: absolute;
     z-index: 2;
     display: none;
@@ -14,12 +14,12 @@
     background-color: #fff;
     border-color:  #c6c6c6;
 }
-.cam-peoplepicker-usersearch:hover
+.lsPeople .cam-peoplepicker-usersearch:hover
 {
       border-color:  #c6c6c6;
 }
 
-.cam-peoplepicker-userSpan {
+.lsPeople .cam-peoplepicker-userSpan {
     border-collapse: collapse;
     cursor: pointer;
     display: inline-block;
@@ -30,7 +30,7 @@
     white-space: nowrap;
 }
 
-.cam-entity-resolved {
+.lsPeople .cam-entity-resolved {
     border-collapse: collapse;
     cursor: pointer;
     display: inline-block;
@@ -41,18 +41,18 @@
     white-space: nowrap;
 }
 
-.cam-peoplepicker-delImage {
+.lsPeople .cam-peoplepicker-delImage {
     border-collapse: collapse;
     cursor: pointer;
     margin-left: 3px;
     color: #337ab7 !important;
 }
 
-.cam-peoplepicker-delImage:hover {
+.lsPeople .cam-peoplepicker-delImage:hover {
     text-decoration: none;
 }
 
-.cam-peoplepicker-edit {
+.lsPeople .cam-peoplepicker-edit {
     border-style: none !important;
     border-color: currentColor !important;
     border-width: 0px !important;
@@ -62,10 +62,10 @@
     outline-width: 0px !important;
 }
 
-.cam-peoplepicker-usersearch .ms-bgHoverable:hover {
+.lsPeople .cam-peoplepicker-usersearch .ms-bgHoverable:hover {
     background-color: rgba(203, 237, 203, 0.50);
 }
 
-.cam-peoplepicker-usersearch .ms-emphasisBorder {
+.lsPeople .cam-peoplepicker-usersearch .ms-emphasisBorder {
     border: 2px dashed darkslategray;
 }

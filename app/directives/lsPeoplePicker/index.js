@@ -4,28 +4,24 @@ require('../../references/MicrosoftAjax.js');
 require('../../references/peoplepickercontrol_resources.en.js');
 var ngCoreConfig = {};
 module.exports = function (ngModule) {
-    ngModule.directive('lsPeoplePicker', function ($q, $timeout, $compile) {
+    ngModule.directive('lsPeople', function ($q, $timeout, $compile) {
         require('./styles.css');
         return {
             restrict: 'EA',
             scope: {
-                ppAllowDuplicates: '=',
-                ppShowLogin: '=',
-                ppShowTitle: '=',
-                ppMinCharacters: '=',
-                ppIsMultiuser: '=',
-                ppAccountType: '=',
-                ppWidth: '@',
-                ppMaxEntriesShown: '=',
+                ngModel: '=',
                 ppPlaceHolder: '@'
             },
             priority: 10,
             require: 'ngModel',
             replace: true,
-            templateUrl: 'directives/ls-people-picker/template.html',
+            templateUrl: 'directives/lsPeoplePicker/template.html',
             link: function (scope, element, attrs, ngModel) {
                 init();
+                function getViewValue() {
 
+                    return ngModel.$modelValue;
+                };
                 function init() {
                     var SPAppWebUrl = _.get(ngCoreConfig, 'sp-shell.SPAppWebUrl') || decodeURIComponent(getQueryStringParameter('SPAppWebUrl'));
                     if (SPAppWebUrl === undefined) {
@@ -39,19 +35,6 @@ module.exports = function (ngModule) {
                     }
 
                 }
-
-                function updateView() {
-                    ngModel.$setViewValue(userModel);
-                    if (!scope.$root.$$phase) {
-                        scope.$apply();
-                    }
-                };
-
-                function getViewValue() {
-
-                    return ngModel.$modelValue;
-                };
-
                 function createOutsideContext(spHostUrl, appWebUrl, spLanguage) {
                     //Get the URI decoded SharePoint site url from the SPHostUrl parameter.
                     scope.spHostUrl = spHostUrl;
@@ -89,13 +72,13 @@ module.exports = function (ngModule) {
                     // required to pass the variable name here!
                     scope.peoplePicker.InstanceName = "peoplePicker";
                     // optionally show more/less entries in the people picker dropdown, 4 is the default
-                    scope.peoplePicker.MaxEntriesShown = (scope.ppMaxEntriesShown) ? scope.ppMaxEntriesShown : 4;
+                    scope.peoplePicker.MaxEntriesShown = (attrs.ppMaxEntriesShown) ? attrs.ppMaxEntriesShown : 4;
                     // Can duplicate entries be selected (default = false)
-                    scope.peoplePicker.AllowDuplicates = (scope.ppAllowDuplicates) ? scope.ppAllowDuplicates : false;
+                    scope.peoplePicker.AllowDuplicates = (attrs.ppAllowDuplicates) ? attrs.ppAllowDuplicates : false;
                     // Show the user loginname
-                    scope.peoplePicker.ShowLoginName = (scope.ppShowLoginName) ? scope.ppShowLoginName : false;
+                    scope.peoplePicker.ShowLoginName = (attrs.ppShowLoginName) ? attrs.ppShowLoginName : false;
                     // Show the user title
-                    scope.peoplePicker.ShowTitle = (scope.ppShowTitle) ? scope.ppShowTitle : true;
+                    scope.peoplePicker.ShowTitle = (attrs.ppShowTitle) ? attrs.ppShowTitle : true;
                     scope.peoplePicker.onSelectionChanged = function () {
                         var result = JSON.parse($('#hdnPeoplePick', element).val());
                         ngModel.$setViewValue(result);
@@ -110,12 +93,12 @@ module.exports = function (ngModule) {
                     // Set principal type to determine what is shown (default = 1, only users are resolved). 
                     // See http://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.utilities.principaltype.aspx for more details
                     // Set ShowLoginName and ShowTitle to false if you're resolving groups
-                    scope.peoplePicker.PrincipalType = setPrincipalType((scope.ppAccountType && scope.ppAccountType.match(/^(?:user)|(?:dl)|(?:secgroup)|(?:spgroup)$/i)) ? scope.ppAccountType : 'User,DL,SecGroup,SPGroup'); //
+                    scope.peoplePicker.PrincipalType = setPrincipalType((attrs.ppAccountType && attrs.ppAccountType.match(/^(?:user)|(?:dl)|(?:secgroup)|(?:spgroup)$/i)) ? attrs.ppAccountType : 'User,DL,SecGroup,SPGroup'); //
                     // start user resolving as of 2 entered characters (= default)
-                    scope.peoplePicker.MinimalCharactersBeforeSearching = (scope.ppMinCharacters) ? scope.ppMinCharacters : 3;
-                    scope.peoplePicker.IsMultiuser = (scope.ppIsMultiuser) ? scope.ppIsMultiuser : true;
+                    scope.peoplePicker.MinimalCharactersBeforeSearching = (attrs.ppMinCharacters) ? attrs.ppMinCharacters : 3;
+                    scope.peoplePicker.IsMultiuser = (attrs.ppIsMultiuser) ? attrs.ppIsMultiuser : true;
                     scope.ppPlaceHolder = (scope.ppPlaceHolder) ? (scope.ppPlaceHolder) : 'Enter names or email addresses...';
-                    scope.ppWidth = (scope.ppWidth && scope.ppWidth.match(/^[0-9][0-9]*px$/i)) ? scope.ppWidth : '220px';
+                    scope.ppWidth = (attrs.ppWidth && attrs.ppWidth.match(/^[0-9][0-9]*px$/i)) ? attrs.ppWidth : '220px';
                     scope.peoplePicker.$scope = scope;
                     scope.peoplePicker.$compile = $compile;
                     // Hookup everything
@@ -126,7 +109,6 @@ module.exports = function (ngModule) {
                         scope.peoplePicker.Populate(users);
 
                 }
-
                 //Method for set the people picker principal
                 function setPrincipalType(type) {
                     type = type.toLowerCase();
@@ -283,9 +265,9 @@ module.exports = function (ngModule) {
                                 if (ignoreCase) {
                                     _token = token.toLowerCase();
                                     while ((
-                                            i = str.toLowerCase().indexOf(
-                                                token, i >= 0 ? i + newToken.length : 0
-                                            )) !== -1) {
+                                        i = str.toLowerCase().indexOf(
+                                            token, i >= 0 ? i + newToken.length : 0
+                                        )) !== -1) {
                                         str = str.substring(0, i) +
                                             newToken +
                                             str.substring(i + token.length);
@@ -306,8 +288,8 @@ module.exports = function (ngModule) {
                             var done = false;
                             script.onload = script.onreadystatechange = function () {
                                 if (!done && (!this.readyState ||
-                                        this.readyState === "loaded" ||
-                                        this.readyState === "complete")) {
+                                    this.readyState === "loaded" ||
+                                    this.readyState === "complete")) {
                                     done = true;
 
                                     // Continue your code
@@ -640,8 +622,8 @@ module.exports = function (ngModule) {
 
                                             // make the SharePoint request
                                             parent.SharePointContext.executeQueryAsync(Function.createDelegate(this, function () {
-                                                    parent.QuerySuccess(queryIDToPass, searchResult);
-                                                }),
+                                                parent.QuerySuccess(queryIDToPass, searchResult);
+                                            }),
                                                 Function.createDelegate(this, function () {
                                                     parent.QueryFailure(queryIDToPass);
                                                 }));

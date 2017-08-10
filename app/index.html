@@ -5,9 +5,10 @@
 
 <body ng-app='app' ng-controller="controller">
     <div id="divSPChrome" style="visibility:collapse;"></div>
-    <ls-people-picker data-ng-model="taskAssignees"></ls-people-picker>
+    <div class="lsPeople" ls-People ng-model="taskAssignees" pp-ready-to-load="{{true}}" pp-is-multiuser="{{false}}"
+     pp-account-type="User" id="single1"></div>
     <span>{{taskAssignees}}</span>
-    <ls-people-picker data-ng-model="taskAssignees2" pp-is-multiuser='false'></ls-people-picker>
+    <ls-people ng-model="taskAssignees2" pp-is-multiuser='false'></ls-people>
     <span>{{taskAssignees2}}</span>
     <script src="bundle.js"></script>
     <script>
